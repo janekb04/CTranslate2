@@ -73,14 +73,19 @@ namespace ctranslate2 {
 #ifdef CT2_WITH_CUDA
   template<>
   int get_device_index<Device::CUDA>() {
-    int index = 0;
-    CUDA_CHECK(cudaGetDevice(&index));
+    static int index = -1;
+    if (index == -1)
+        CUDA_CHECK(cudaGetDevice(&index));
     return index;
   }
 
   template<>
   void set_device_index<Device::CUDA>(int index) {
-    CUDA_CHECK(cudaSetDevice(index));
+    static bool first = true;
+    if (first) {
+        CUDA_CHECK(cudaSetDevice(index));
+        first = false;
+    }
   }
 #endif
 
